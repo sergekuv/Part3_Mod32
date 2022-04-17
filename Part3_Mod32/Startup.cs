@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Part3_Mod32.Middlewares;
 
 namespace Part3_Mod32
 {
@@ -23,18 +25,19 @@ namespace Part3_Mod32
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             statEnv = env;
+            Console.WriteLine($"Launching project from: ContentRootPath: {env.ContentRootPath} and WebRootPath {env.WebRootPath}");
+
             if (env.IsDevelopment() || env.IsStaging())
             {
                 app.UseDeveloperExceptionPage();
             }
 
             app.UseRouting();
+            app.UseStaticFiles();
 
-            app.Use(async (contex, next) =>
-            {
-                Console.WriteLine($"[{DateTime.Now}]: New request to http://{contex.Request.Host.Value + contex.Request.Path}");
-                await next.Invoke();
-            });
+            Console.WriteLine($"Launching project from: ContentRootPath: {env.ContentRootPath} and WebRootPath {env.WebRootPath}");
+
+            app.UseMiddleware<LoggingMiddleware>(env);
 
             app.UseEndpoints(endpoints =>
             {
@@ -44,13 +47,17 @@ namespace Part3_Mod32
                 });
             });
 
+
             app.Map("/about", About);
             app.Map("/config", Config);
 
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync($"Page not found");
-            });
+            app.UseStatusCodePages();
+            //app.Run(async (context) =>
+            //{
+            //    int zero = 0;
+            //    int result = 4 / zero;
+            //    await context.Response.WriteAsync($"Page not found");
+            //});
 
         }
 
