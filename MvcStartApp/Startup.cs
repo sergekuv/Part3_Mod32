@@ -33,6 +33,8 @@ namespace MvcStartApp
             services.AddControllersWithViews();
             
             services.AddSingleton<IBlogRepository, BlogRepository>();
+            services.AddSingleton<ILogRepository, LogRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
